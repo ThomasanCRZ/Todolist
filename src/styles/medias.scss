@@ -1,0 +1,117 @@
+@media screen and (max-width: 600px) {
+
+    html {
+        width: 100% !important;
+        margin: 0 auto;
+    }
+    #root {
+        width: 100% !important;
+        margin: 0 auto;
+    }
+    body {
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 2rem;
+    }
+    .navbar {
+        padding: 1.5rem 0 0 0 !important;
+    }
+    .main {
+        width: 100%;
+        .main-content {
+            width: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 0rem !important;
+            gap: 4rem!important;
+
+            .main-text {
+                margin-top: 0 !important;
+                h2 {
+                    font-size: 1.5rem !important;
+                }
+                p {
+                    font-size: 0.8rem !important;
+                }
+                .label-container {
+
+                    .label {
+                        p {
+                            font-size: 0.7rem !important;
+                        }
+                    }
+                }
+
+            }
+
+            .main-component {
+                min-width: 320px !important;
+                padding: 1.5rem !important;
+                height: 520px !important;
+                h3 {
+                    font-size: 1.2rem !important;
+                }
+                p {
+                    font-size: 0.8rem !important;
+                }  
+
+                .task {
+                    width: 100% !important;
+                    font-size: 0.8rem !important;
+
+                }
+            }
+
+            .todolist-wrapper {
+                min-width: 320px !important;
+                padding: 0 1rem  !important;
+                margin: 3rem auto !important;
+                h3 {
+                    font-size: 1.2rem !important;
+                    margin-bottom: 0;
+                }
+                p {
+                    font-size: 0.8rem !important;
+                }
+                .tasks {
+                    width: 100% !important;
+                    font-size: 0.8rem !important;
+
+                    span {
+                        display: inline-block;
+                        word-break: break-word;
+                        flex-wrap: wrap;
+                        max-width: 180px;
+                        height: auto;
+                    }
+                }
+            }
+        }
+        .cta-wrapper {
+            margin: 0  0 2rem 0!important;
+
+            .cta-text {
+                h3 {
+                    font-size: 1.5rem !important;
+                }
+                p {
+                    font-size: 0.9rem !important;
+                }
+            }
+        }
+        .modal-update-content {
+            min-width: 320px !important;
+            padding: 1.5rem !important;
+            h3 {
+                font-size: 1.2rem !important;
+            }
+            p {
+                font-size: 0.8rem !important;
+            }
+            button {
+                font-size: 0.8rem !important;
+            }
+        }
+    }   
+}

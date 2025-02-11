@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Rock+Salt&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+// LightMode
+$light-text-color: #333;
+$light-small-text-color: #333333;
+$light-background-color: #ffffff;
+$light-border-color: rgba(0, 0, 0, 0.3);
+$light-label-text-color: #0c0c0c;
+$light-label-bg-color: rgba(5, 5, 5, 0.1);
+$light-item-color: #ececec;
+$light-component-color: #f7f7f7;
+$light-component-shadow: rgba(0, 0, 0, 0.1);
+$light-toggle-shadow-005: rgba(0, 0, 0, 0.05);
+$light-toggle-shadow-01: rgba(0, 0, 0, 0.1);
+$light-toggle-shadow-02: rgba(255, 255, 255, 0.2);
+$light-toggle-shadow-05: rgba(255, 255, 255, 0.5);
+$light-linear-gradient: linear-gradient(to bottom, #ffffff, #f5f5f5);
+
+
+// DarkMode
+$dark-text-color: #fff;
+$dark-small-text-color: #ccc;
+$dark-background-color: #121212;
+$dark-border-color: rgba(255, 255, 255, 0.3);
+$dark-label-text-color: #fff;
+$dark-label-bg-color: rgba(255, 254, 254, 0.2);
+$dark-item-color: #333;
+$dark-component-color: #080808;
+$dark-component-shadow: rgba(0, 0, 0, 0.3);
+$dark-toggle-shadow-005: rgba(0, 0, 0, 0.1);
+$dark-toggle-shadow-01: rgba(0, 0, 0, 0.4);
+$dark-toggle-shadow-02: rgba(0, 0, 0, 0.5);
+$dark-toggle-shadow-05: rgba(0, 0, 0, 0.5);
+$dark-linear-gradient: linear-gradient(to bottom, #444, #222);
+
+
+
+// Général
+$success-color: #28a745;
+$warning-color: #ffc107;
+$danger-color: #dc3545;
+
+
+// Labels 
+$label-span-color: rgba(165, 34, 226, 0.9);
