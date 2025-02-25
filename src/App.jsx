@@ -2,11 +2,27 @@ import {motion} from "framer-motion";
 import { BsXLg } from "react-icons/bs";
 import { BsPencilSquare } from "react-icons/bs";
 import Footer from "./components/Footer";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import { useEffect, useState } from "react";
 
 
 function App() {
+    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("sb-khedoqkdfmeognsntgzy-auth-token");
+        setIsAuthenticated(!!token);
+    }, []);
+    const handleStartClick = () => {
+        if (isAuthenticated) {
+            navigate("/todolist");
+        } else {
+            navigate("/auth");
+        }
+        
+    }
   return (
     <>
         <motion.div
@@ -92,7 +108,7 @@ function App() {
                         <p>Un gain de temps pour votre quotidien !</p>
                     </div>
                     <div className="btn-to-todolist">
-                        <Link to="/todolist">Commencer</Link>
+                    <button onClick={handleStartClick}>Commencer</button>
                     </div>
                 </div>
                 

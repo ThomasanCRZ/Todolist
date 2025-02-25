@@ -4,6 +4,8 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import App from './App.jsx'
 import Todolist from './pages/Todolist.jsx'
+import Auth from './components/Auth.jsx'
+import Register from './components/Register.jsx'
 import './styles/index.scss'
 
 // Composant pour gérer les routes avec animation
@@ -15,6 +17,8 @@ const AnimatedRoutes = () => {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<App />} />
         <Route path="/todolist" element={<Todolist />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path='/register' element={<Register />} />
       </Routes>
     </AnimatePresence>
   );

@@ -1,11 +1,14 @@
 import {motion} from "framer-motion";
 import { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { BsPencilSquare, BsXLg } from "react-icons/bs";
 
 function Todolist() {
+
     // useState 
+    const [user, setUser] = useState(null);
     const [tasks, setTasks] = useState([]); // Liste des tâches en cours
     const [tasksFinished, setTasksFinished] = useState([]); // Liste des tâches terminées
     const [tasksToAdd, setTasksToAdd] = useState(""); // État pour gérer l'input d'ajout de tâche
@@ -15,121 +18,181 @@ function Todolist() {
     // Remonter en haut de page au chargement 
     useEffect(() => {
         window.scrollTo({top:0, behavior: "smooth"});
-    })
-    // Charger les tâches depuis localStorage au montage du composant
+    }, []); // Ajout de dépendance pour éviter boucle infinie
+
+    // Vérifier si un utilisateur est connecté
     useEffect(() => {
-        const storedTasks = JSON.parse(localStorage.getItem("tasks")); // Récupère les tâches en cours stockées
-        const storedTasksFinished = JSON.parse(localStorage.getItem("tasksFinished")); // Récupère les tâches terminées stockées
-        const tasksInitialized = localStorage.getItem("tasksInitialized"); // Vérifie si l'init a déjà été faite
-
-        if (!tasksInitialized) {
-            // Ajoute une tâche par défaut uniquement la première fois
-            const defaultTasks = ["Exemple de tâche à effectuer"];
-            const defaultTasksFinished = ["Exemple de tâche terminée"];
-            localStorage.setItem("tasks", JSON.stringify(defaultTasks));
-            localStorage.setItem("tasksFinished", JSON.stringify(defaultTasksFinished));
-            localStorage.setItem("tasksInitialized", "true"); // Marque comme initialisé
-            setTasks(defaultTasks);
-            setTasksFinished(defaultTasksFinished);
-        } else {
-            setTasks(storedTasks);
-            setTasksFinished(storedTasksFinished);
-        }
-        if (storedTasks) setTasks(storedTasks); // Charge les tâches si elles existent
-        if (storedTasksFinished) setTasksFinished(storedTasksFinished); // Charge les tâches terminées si elles existent
-    }, []);
-
-    // Sauvegarde les tâches dans localStorage à chaque mise à jour de tasks et tasksFinished
+        const checkUser = async () => {
+            const { data: { user }} = await supabase.auth.getUser();
+            setUser(user);
+            console.log(user); // Vérifie si l'utilisateur est bien récupéré
+        };
+        checkUser();
+    }, []); // Ce useEffect vérifie l'utilisateur une seule fois au début
+    
     useEffect(() => {
-        if (tasks.length > 0) {
-            localStorage.setItem("tasks", JSON.stringify(tasks)); // Sauvegarde des tâches en JSON
-        }
-        if (tasksFinished.length > 0) {
-            localStorage.setItem("tasksFinished", JSON.stringify(tasksFinished)); // Sauvegarde des tâches terminées
-        }
-    }, [tasks, tasksFinished]);
-
+        if (!user) return;
+            const fetchTasks = async () => {
+                const { data, error } = await supabase
+                    .from("tasks")
+                    .select("*")
+                    .eq("user_id", user.id); // Récupère les tâches associées à l'utilisateur connecté
+                if (error) {
+                    console.error("Error fetching tasks:", error);
+                } else {
+                    console.log(data); // Vérifie les tâches récupérées
+                    // Sépare les tâches en cours et terminées
+                    setTasks(data.filter(task => !task.is_finished));
+                    setTasksFinished(data.filter(task => task.is_finished));
+                }
+            };
+            fetchTasks();
+    }, [user]); // Ce useEffect se déclenche à chaque changement d'utilisateur
 
     // Fonction pour gérer la saisie dans l'input
     const handleInputChange = (e) => {
+        e.preventDefault();
         setTasksToAdd(e.target.value);
     };
 
     // Fonction pour ajouter une tâche à la liste
-    const addTask = (e) => {
+    const addTask = async (e) => {
         e.preventDefault();
-        if (tasksToAdd.trim()) {  // Vérifie si l'input n'est pas vide
-            const newTasks = [...tasks, tasksToAdd]; // Ajoute la nouvelle tâche à la liste
-            setTasks(newTasks);
-            setTasksToAdd(""); // Réinitialise l'input
+        if (!user || tasksToAdd.trim() === "") return;
 
-            // Mise à jour immédiate de localStorage
-            localStorage.setItem("tasks", JSON.stringify(newTasks));
+        const newTask = { task: tasksToAdd, is_finished: false, user_id: user.id };
+        const { error } = await supabase.from("tasks").insert([newTask]);
+
+        if (error) {
+            console.error("Error adding task:", error);
+        } else {
+            // Rafraîchir les tâches après l'ajout
+            const { data: allTasks, error: fetchError } = await supabase
+                .from("tasks")
+                .select("*")
+                .eq("user_id", user.id);
+
+            if (fetchError) {
+                console.error("Error fetching tasks:", fetchError);
+            } else {
+                setTasks(allTasks.filter(task => !task.is_finished));
+                setTasksFinished(allTasks.filter(task => task.is_finished));
+                setTasksToAdd("");
+            }
         }
     };
+
     
-    // Fonction pour terminer une tâche en récupérant son index et son nom
-    const finishTask = (index) => {
+    
+    // Fonction pour terminer une tâche
+    const finishTask = async (index) => {
         const taskToFinish = tasks[index]; // Récupère la tâche à terminer
-        const newTasks = tasks.filter((_, i) => i !== index);  // Supprime la tâche à terminer
-        const newTasksFinished = [...tasksFinished, taskToFinish]; // Ajoute la tâche à la liste des tâches terminées
 
-        setTasks(newTasks);
-        setTasksFinished(newTasksFinished);
+        // Mise à jour dans Supabase (on met à jour uniquement is_finished)
+        const { error } = await supabase
+            .from("tasks")
+            .update({ is_finished: true })
+            .eq("id", taskToFinish.id);
 
-        // Mise à jour immédiate de localStorage
-        localStorage.setItem("tasks", JSON.stringify(newTasks));
-        localStorage.setItem("tasksFinished", JSON.stringify(newTasksFinished));
+        if (error) {
+            console.error("Error updating task:", error);
+        } else {
+            // Mise à jour de l'état local après confirmation
+            const newTasks = tasks.filter((_, i) => i !== index);  // Supprime la tâche à terminer
+            setTasks(newTasks);
+
+            // Ajouter la tâche dans la liste des tâches terminées
+            setTasksFinished(prevTasks => [...prevTasks, taskToFinish]);
+        }
     };
 
-    // Fonction pour redéfinir une tache terminé en tache en cours
-    const resetTask = (index) => {
+    // Fonction pour redéfinir une tâche terminée en tâche en cours
+    const resetTask = async (index) => {
         const taskToReset = tasksFinished[index]; // Récupère la tâche à redéfinir
-        const newTasks = [...tasks, taskToReset]; // Ajoute la tâche à la liste des tâches en cours
-        const newTasksFinished = tasksFinished.filter((_, i) => i !== index); // Supprime la tâche à redéfinir
 
-        setTasks(newTasks);
-        setTasksFinished(newTasksFinished);
+        // Mise à jour dans Supabase (on remet is_finished à false)
+        const { error } = await supabase
+            .from("tasks")
+            .update({ is_finished: false })
+            .eq("id", taskToReset.id);
 
-        // Mise à jour immédiate de localStorage
-        localStorage.setItem("tasks", JSON.stringify(newTasks));
-        localStorage.setItem("tasksFinished", JSON.stringify(newTasksFinished));
+        if (error) {
+            console.error("Error updating task:", error);
+        } else {
+            // Mise à jour de l'état local après confirmation
+            const newTasks = [...tasks, taskToReset]; // Ajoute la tâche à la liste des tâches en cours
+            const newTasksFinished = tasksFinished.filter((_, i) => i !== index); // Supprime la tâche des terminées
+            setTasks(newTasks);
+            setTasksFinished(newTasksFinished);
+        }
     };
+
     // Fonction pour récupérer la tâche à modifier
     const startEditing = (index, isFinished) => {
         setEditingTask({index, isFinished});
-        setEditedText(isFinished ? tasksFinished[index] : tasks[index]); // Remplit l'input avec la valeur actuelle
+        setEditedText(isFinished ? tasksFinished[index].task : tasks[index].task); // Remplir l'input avec la valeur actuelle
     };
 
-    // Mettre à jour la tâche modifiée
-    const saveEditedTask = () => {
+    const saveEditedTask = async () => {
         if (editedText.trim() && editingTask !== null) {
+            let taskList = editingTask.isFinished ? [...tasksFinished] : [...tasks];
+            let taskIndex = editingTask.index;
+    
+            // Mise à jour locale
+            taskList[taskIndex] = { ...taskList[taskIndex], task: editedText };
+    
             if (editingTask.isFinished) {
-                const updatedTasksFinished = [...tasksFinished];
-                updatedTasksFinished[editingTask.index] = editedText;
-                setTasksFinished(updatedTasksFinished);
-                localStorage.setItem("tasksFinished", JSON.stringify(updatedTasksFinished));
+                setTasksFinished(taskList);
             } else {
-                const updatedTasks = [...tasks];
-                updatedTasks[editingTask.index] = editedText;
-                setTasks(updatedTasks);
-                localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+                setTasks(taskList);
             }
+    
+            // Mise à jour dans Supabase
+            const { error } = await supabase
+                .from("tasks")
+                .update({ task: editedText })
+                .eq("id", taskList[taskIndex].id);
+    
+            if (error) {
+                console.error("Error updating task:", error);
+            }
+    
             setEditingTask(null);
+            setEditedText(""); // Réinitialiser le texte de l'édition
         }
     };
+    
+
     // Fonction pour supprimer une tâche via son index
-    const deleteTask = (index, isFinished) => {
+    const deleteTask = async (index, isFinished) => {
+        let taskToDelete;
+        let taskList;
         if (isFinished) {
-            const newTasksFinished = tasksFinished.filter((_, i) => i !== index); // Supprime la tâche des terminées
-            setTasksFinished(newTasksFinished);
-            localStorage.setItem("tasksFinished", JSON.stringify(newTasksFinished));
+            taskToDelete = tasksFinished[index];
+            taskList = tasksFinished;
         } else {
-            const newTasks = tasks.filter((_, i) => i !== index); // Supprime la tâche des en cours
-            setTasks(newTasks);
-            localStorage.setItem("tasks", JSON.stringify(newTasks));
+            taskToDelete = tasks[index];
+            taskList = tasks;
+        }
+    
+        const updatedList = taskList.filter((_, i) => i !== index);
+        if (isFinished) {
+            setTasksFinished(updatedList);
+        } else {
+            setTasks(updatedList);
+        }
+    
+        // Suppression dans Supabase
+        const { error } = await supabase
+            .from("tasks")
+            .delete()
+            .eq("id", taskToDelete.id);
+    
+        if (error) {
+            console.error("Error deleting task:", error);
         }
     };
+    
 
     return (
         <>
@@ -138,6 +201,7 @@ function Todolist() {
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -50 }}
                 transition={{ duration: 0.7 }}
+                style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
             >
                 <Navbar />    
                 <div className="main">
@@ -149,22 +213,22 @@ function Todolist() {
                                 {tasks.length > 0 ? tasks.map((task, index) => (
                                     <div className="task-item" key={index}>
                                         <div className="custom-checkbox" onClick={() => finishTask(index)}></div>
-                                        <span>{task}</span>
+                                        <span>{task.task}</span>
                                         <BsPencilSquare onClick={() => startEditing(index, false)}/>
                                         <BsXLg onClick={() => deleteTask(index, false)} />
                                     </div>
-                                )) : "Vous n'avez aucune tâche à effectuer" }
+                                )) : "Vous n'avez aucune tâche à effectuer." }
                             </div>
                             <p>Liste des tâches terminées.</p>
                             <div className="tasks">
                                 {tasksFinished.length > 0 ? tasksFinished.map((task, index) => (
                                     <div className="task-item" key={index}>
                                         <div className="custom-checkbox checked" onClick={() => resetTask(index)}></div>
-                                        <span>{task}</span>
+                                        <span>{task.task}</span>
                                         <BsPencilSquare onClick={() => startEditing(index, true)}/>
                                         <BsXLg onClick={() => deleteTask(index, true)} />
                                     </div>
-                                )) : "Vous n'avez aucune tâche terminée" }
+                                )) : "Vous n'avez aucune tâche terminée." }
                             </div>
                             <form onSubmit={addTask}>
                                 <input 

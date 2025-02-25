@@ -15,6 +15,27 @@
     }
     .navbar {
         padding: 1.5rem 0 0 0 !important;
+
+        .btns-right {
+            gap: 0.5rem !important;
+
+            .btn-login, .btn-logout {
+                font-size: 0.5rem !important;
+                padding: 0.3rem 0.5rem !important;
+            }
+            #toggle-btn {
+                width: 50px !important;
+                height: 30px !important;
+
+                .indicator {
+                    
+                    &.active {
+                        left: 20px !important;
+                    }
+                }
+            }
+        }
+
     }
     .main {
         width: 100%;
@@ -113,5 +134,20 @@
                 font-size: 0.8rem !important;
             }
         }
-    }   
+    }
+    .auth-container {
+        .auth-form {
+            min-width: 320px !important;
+            padding: 2rem 1rem !important;
+            h2 {
+                font-size: 1.2rem !important;
+            }
+            input {
+                font-size: 0.8rem !important;
+            }
+            button {
+                font-size: 0.8rem !important;
+            }
+        }
+    }
 }
