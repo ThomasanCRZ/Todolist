@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import GitHubAuth from "./GitHubAuth";
+import translateError from "../utils/translateError.jsx";
 
 function Auth() {
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ function Auth() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(translateError(error.message));
     } else {
       navigate("/todolist");
     }
@@ -58,7 +59,7 @@ function Auth() {
                         Connexion
                     </button>
                 </div>
-                
+
                 <div className="line"></div>
                 <GitHubAuth />
                 

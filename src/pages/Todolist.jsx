@@ -133,7 +133,8 @@ function Todolist() {
         setEditedText(isFinished ? tasksFinished[index].task : tasks[index].task); // Remplir l'input avec la valeur actuelle
     };
 
-    const saveEditedTask = async () => {
+    const saveEditedTask = async (e) => {
+        e.preventDefault();
         if (editedText.trim() && editingTask !== null) {
             let taskList = editingTask.isFinished ? [...tasksFinished] : [...tasks];
             let taskIndex = editingTask.index;

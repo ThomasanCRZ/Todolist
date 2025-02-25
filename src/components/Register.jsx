@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import GitHubAuth from "./GitHubAuth";
+import translateError from "../utils/translateError.jsx";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -22,7 +23,7 @@ function Register() {
     const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(translateError(error.message));
     } else {
       setMessage("Vérifie ton email pour confirmer ton inscription !");
       setTimeout(() => navigate("/auth"), 4000);
