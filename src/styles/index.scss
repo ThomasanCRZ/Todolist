@@ -692,6 +692,10 @@ body.dark {
   padding-bottom: 0.5rem;
   transition: 0.7s;
 
+  a {
+    text-decoration: none;
+    color: var(--text-color);
+  }
   h2 {
     font-family: 'rock salt';
   }
