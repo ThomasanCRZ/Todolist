@@ -7,7 +7,7 @@ const GitHubAuth = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: window.location.origin, // Redirige vers la page actuelle après connexion
+        redirectTo: "/todolist", // Redirige vers la page actuelle après connexion
       },
     });
 
