@@ -1,18 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { DiGithubBadge } from "react-icons/di";
 
 
 const GitHubAuth = () => {
+  const navigate = useNavigate();
   const handleGitHubLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
-      options: {
-        redirectTo: "/todolist", // Redirige vers la page actuelle après connexion
-      },
     });
 
     if (error) {
       console.error("Erreur de connexion avec GitHub :", error.message);
+    } else {
+      navigate("/todolist");
     }
   };
 
