@@ -25,7 +25,7 @@ function Auth() {
     if (error) {
       setErrorMessage(translateError(error.message));
     } else {
-      navigate("/todolist");
+      navigate("#/todolist");
     }
 
     setLoading(false);
